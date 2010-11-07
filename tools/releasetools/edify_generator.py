@@ -110,11 +110,6 @@ class EdifyGenerator(object):
     self.script.append('set_perm(0, 0, 0777, "/tmp/verify_cache_partition_size.sh");')
     self.script.append('run_program("/tmp/verify_cache_partition_size.sh");')
 
-  def ShHijack(self):
-    self.script.append('symlink("/system/bin/sh.sh", "/system/sbin/shlink");')
-    self.script.append('symlink("/system/sbin/shlink", "/system/bin/sh");')
-    self.script.append('set_perm_recursive(0, 2000, 0755, 0755, "/system/sbin");')
-
   def ShowProgress(self, frac, dur):
     """Update the progress bar, advancing it over 'frac' over the next
     'dur' seconds.  'dur' may be zero to advance it via SetProgress
