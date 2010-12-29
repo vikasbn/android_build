@@ -357,6 +357,11 @@ def WriteFullOTAPackage(input_zip, output_zip):
               "post-timestamp": GetBuildProp("ro.build.date.utc", input_zip),
               }
 
+  modver = GetBuildProp("ro.modversion", input_zip)
+  if modver is not None:
+    metadata.update({"modver": modver})
+    script.Print("Welcome to %(modver)s!" % metadata)
+
   device_specific = common.DeviceSpecificParams(
       input_zip=input_zip,
       input_version=OPTIONS.info_dict["recovery_api_version"],
@@ -382,23 +387,23 @@ def WriteFullOTAPackage(input_zip, output_zip):
 
   script.FormatPartition("/system")
   script.Mount("/system")
-  script.UnpackPackageDir("recovery", "/system")
+#  script.UnpackPackageDir("recovery", "/system")
   script.UnpackPackageDir("system", "/system")
 
   symlinks = CopySystemFiles(input_zip, output_zip)
   script.MakeSymlinks(symlinks)
 
-  boot_img = common.File("boot.img", common.BuildBootableImage(
-      os.path.join(OPTIONS.input_tmp, "BOOT")))
-  recovery_img = common.File("recovery.img", common.BuildBootableImage(
-      os.path.join(OPTIONS.input_tmp, "RECOVERY")))
-  MakeRecoveryPatch(output_zip, recovery_img, boot_img)
+#  boot_img = common.File("boot.img", common.BuildBootableImage(
+#      os.path.join(OPTIONS.input_tmp, "BOOT")))
+#  recovery_img = common.File("recovery.img", common.BuildBootableImage(
+#      os.path.join(OPTIONS.input_tmp, "RECOVERY")))
+#  MakeRecoveryPatch(output_zip, recovery_img, boot_img)
 
   Item.GetMetadata(input_zip)
   Item.Get("system").SetPermissions(script)
 
-  common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
-  common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
+#  common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
+#  common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
   script.ShowProgress(0.2, 0)
 
   if OPTIONS.backuptool:
