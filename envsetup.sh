@@ -473,12 +473,19 @@ function print_lunch_menu()
 
 function brunch()
 {
-    breakfast $* && mka bacon
+    breakfast $*
+    if [ $? -eq 0 ]; then
+        mka bacon
+    else
+        echo "No such item in brunch menu. Try 'breakfast'"
+        return 1
+    fi
     return $?
 }
 
 function breakfast()
 {
+    target=$1
     CM_DEVICES_ONLY="true"
     unset LUNCH_MENU_CHOICES
     add_lunch_combo full-eng
@@ -488,9 +495,24 @@ function breakfast()
             . $f
         done
     unset f
-    lunch $*
+
+    if [ $# -eq 0 ]; then
+        # No arguments, so let's have the full menu
+        lunch
+    else
+        echo "z$target" | grep -q "-"
+        if [ $? -eq 0 ]; then
+            # A buildtype was specified, assume a full device name
+            lunch $target
+        else
+            # This is probably just the CM model name
+            lunch cyanogen_$target-eng
+        fi
+    fi
     return $?
 }
+
+alias bib=breakfast
 
 function lunch()
 {
