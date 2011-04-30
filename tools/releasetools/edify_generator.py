@@ -157,13 +157,6 @@ class EdifyGenerator(object):
                          (p.fs_type, common.PARTITION_TYPES[p.fs_type],
                           p.device, p.mount_point))
       self.mounts.add(p.mount_point)
-    else:
-      what = mount_point.lstrip("/")
-      what = self.info.get("partition_path", "") + what
-      self.script.append('mount("%s", "%s", "%s", "%s");' %
-                         (self.info["fs_type"], self.info["partition_type"],
-                          what, mount_point))
-      self.mounts.add(mount_point)
 
   def UnpackPackageDir(self, src, dst):
     """Unpack a given directory from the OTA package into the given
@@ -248,6 +241,7 @@ class EdifyGenerator(object):
             'package_extract_file("%(fn)s", "%(device)s");' % args)
       else:
         raise ValueError("don't know how to write \"%s\" partitions" % (p.fs_type,))
+
     else:
       # backward compatibility with older target-files that lack recovery.fstab
       if self.info["partition_type"] == "MTD":
