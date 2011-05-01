@@ -1168,7 +1168,6 @@ ifneq ($(TARGET_SIMULATOR),true)
 ifneq ($(TARGET_PRODUCT),sdk)
 ifneq ($(TARGET_DEVICE),generic)
 #ifneq ($(TARGET_NO_KERNEL),true)
-#ifneq ($(recovery_fstab),)
 
 # -----------------------------------------------------------------
 # OTA update package
@@ -1267,7 +1266,6 @@ bacon: otapackage
 		WANT_SQUASHFS=$(WANT_SQUASHFS) \
 		./vendor/cyanogen/tools/squisher
 
-#endif    # recovery_fstab is defined
 #endif    # TARGET_NO_KERNEL != true
 endif    # TARGET_DEVICE != generic
 endif    # TARGET_PRODUCT != sdk
