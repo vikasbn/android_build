@@ -165,10 +165,7 @@ def LoadRecoveryFSTab(zip):
 
     p = Partition()
     p.mount_point = pieces[0]
-    if len(pieces) >= 5:
-      p.fs_type = pieces[4]
-    else:
-      p.fs_type = pieces[1]
+    p.fs_type = pieces[1]
     p.device = pieces[2]
     if len(pieces) >= 4 and pieces[3] != 'NULL':
       p.device2 = pieces[3]
@@ -790,8 +787,9 @@ def ComputeDifferences(diffs):
 
 # map recovery.fstab's fs_types to mount/format "partition types"
 PARTITION_TYPES = { "yaffs2": "MTD", "mtd": "MTD",
-                    "ext4": "EMMC", "ext3": "EMMC",
-                    "vfat": "EMMC", "emmc": "EMMC" }
+                    "ext2": "EMMC", "ext3": "EMMC",
+                    "ext4": "EMMC", "vfat": "EMMC",
+                    "emmc": "EMMC" }
 
 def GetTypeAndDevice(mount_point, info):
   fstab = info["fstab"]
