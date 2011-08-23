@@ -625,6 +625,34 @@ function tapas()
     printconfig
 }
 
+function eat()
+{
+    if [ "$OUT" ] ; then
+        MODVERSION=`sed -n -e'/ro\.modversion/s/^.*CyanogenMod-//p' $OUT/system/build.prop`
+        ZIPFILE=$OUT/update-cm-$MODVERSION-signed.zip
+        if [ $(adb get-state) != device ] ; then
+            echo "No device is online. Waiting for one..."
+            adb wait-for-device
+        fi
+        echo "Pushing update-cm-$MODVERSION-signed.zip to device"
+        if adb push $ZIPFILE /mnt/sdcard/ ; then
+            cat << EOF > /tmp/extendedcommand
+ui_print("Nom nom nom nom...");
+install_zip("/sdcard/update-cm-$MODVERSION-signed.zip");
+EOF
+            if adb push /tmp/extendedcommand /cache/recovery/ ; then
+                echo "Rebooting into recovery for installation"
+                adb reboot recovery
+            fi
+            rm /tmp/extendedcommand
+        fi
+    else
+        echo "Nothing to eat"
+        return 1
+    fi
+    return $?
+}
+
 function gettop
 {
     local TOPFILE=build/core/envsetup.mk
@@ -1141,7 +1169,7 @@ function cmremote()
     then
         echo .git directory not found. Please run this from the root directory of the Android repository you wish to set up.
     fi
-    GERRIT_REMOTE=$(cat .git/config  | grep git://github.com | awk '{ print $3 }' | sed s#git://github.com/##g)
+    GERRIT_REMOTE=$(cat .git/config  | grep git://github.com | awk '{ print $NF }' | sed s#git://github.com/##g)
     if [ -z "$GERRIT_REMOTE" ]
     then
         echo Unable to set up the git remote, are you in the root of the repo?
@@ -1169,7 +1197,7 @@ function cmgerrit()
     local mode=$1
     local target=$2
 
-    repo=$(cat .git/config  | grep git://github.com | awk '{ print $3 }' | sed s#git://github.com/##g)
+    repo=$(cat .git/config  | grep git://github.com | awk '{ print $NF }' | sed s#git://github.com/##g)
     user=`git config --get review.review.cyanogenmod.com.username`
 
     if [ -z "$repo" ]; then
