@@ -641,17 +641,16 @@ function eat()
         fi
         echo "Pushing $ZIPFILE to device"
         if adb push $ZIPPATH /mnt/sdcard/ ; then
-            cat << EOF > /tmp/extendedcommand
-ui_print("Nom nom nom nom...");
-install_zip("/sdcard/$ZIPFILE");
+            cat << EOF > /tmp/command
+--update_package=/sdcard/$ZIPFILE
 EOF
-            if adb push /tmp/extendedcommand /cache/recovery/ ; then
+            if adb push /tmp/command /cache/recovery/ ; then
                 echo "Rebooting into recovery for installation"
                 adb reboot recovery
                 # alternative way :
                 # adb shell "sync && reboot recovery && exit"
             fi
-            rm /tmp/extendedcommand
+            rm /tmp/command
         fi
     else
         echo "Nothing to eat"

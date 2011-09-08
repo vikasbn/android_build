@@ -60,6 +60,10 @@ then
     cp $BOOTIMAGE $TMPDIR
     pushd $TMPDIR > /dev/null
     unpackbootimg -i $BOOTIMAGEFILE > /dev/null
+    mkdir ramdisk
+    pushd ramdisk > /dev/null
+    gunzip -c ../$BOOTIMAGEFILE-ramdisk.gz | cpio -i
+    popd > /dev/null
     BASE=$(cat $TMPDIR/$BOOTIMAGEFILE-base)
     CMDLINE=$(cat $TMPDIR/$BOOTIMAGEFILE-cmdline)
     PAGESIZE=$(cat $TMPDIR/$BOOTIMAGEFILE-pagesize)
@@ -67,13 +71,6 @@ then
     echo $SEDCMD > $TMPDIR/sedcommand
     cp $TMPDIR/$BOOTIMAGEFILE-zImage $DEVICE_DIR/kernel
     popd > /dev/null
-
-    RECOVERY_FSTAB=$TMPDIR/ramdisk/etc/recovery.fstab
-    if [ -f "$RECOVERY_FSTAB" ]
-    then
-      cp $RECOVERY_FSTAB $DEVICE_DIR/recovery.fstab
-    fi
-
 else
     mkdir -p $DEVICE_DIR
     touch $DEVICE_DIR/kernel
@@ -89,6 +86,16 @@ do
     OUTPUT_FILE=$DEVICE_DIR/$(basename $(echo $file | sed s/\\.template//g))
     cat $file | sed s/__DEVICE__/$DEVICE/g | sed s/__MANUFACTURER__/$MANUFACTURER/g | sed -f $TMPDIR/sedcommand | sed s/__BASE__/$BASE/g | sed s/__PAGE_SIZE__/$PAGESIZE/g > $OUTPUT_FILE
 done
+
+if [ ! -z "$TMPDIR" ]
+then
+    RECOVERY_FSTAB=$TMPDIR/ramdisk/etc/recovery.fstab
+    if [ -f "$RECOVERY_FSTAB" ]
+    then
+        cp $RECOVERY_FSTAB $DEVICE_DIR/recovery.fstab
+    fi
+fi
+
 
 mv $DEVICE_DIR/device.mk $DEVICE_DIR/device_$DEVICE.mk
 
