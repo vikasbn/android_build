@@ -151,9 +151,12 @@ def LoadRecoveryFSTab(zip):
   try:
     data = zip.read("RECOVERY/RAMDISK/etc/recovery.fstab")
   except KeyError:
-    # older target-files that doesn't have a recovery.fstab; fall back
-    # to the fs_type and partition_type keys.
-    return
+    try:
+       data = zip.read("RECOVERY/RAMDISK/misc/recovery.fstab")
+    except KeyError:
+      # older target-files that doesn't have a recovery.fstab; fall back
+      # to the fs_type and partition_type keys.
+      return
 
   d = {}
   for line in data.split("\n"):
