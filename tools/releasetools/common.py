@@ -138,10 +138,6 @@ def LoadInfoDict(zip):
   makeint("boot_size")
 
   d["fstab"] = LoadRecoveryFSTab(zip)
-  if not d["fstab"]:
-    if "fs_type" not in d: d["fs_type"] = "yaffs2"
-    if "partition_type" not in d: d["partition_type"] = "MTD"
-
   return d
 
 def LoadRecoveryFSTab(zip):
@@ -154,9 +150,7 @@ def LoadRecoveryFSTab(zip):
     try:
        data = zip.read("RECOVERY/RAMDISK/misc/recovery.fstab")
     except KeyError:
-      # older target-files that doesn't have a recovery.fstab; fall back
-      # to the fs_type and partition_type keys.
-      return
+      raise ValueError("Could not find RECOVERY/RAMDISK/etc/recovery.fstab or RECOVERY/RAMDISK/misc/recovery.fstab")
 
   d = {}
   for line in data.split("\n"):
@@ -381,9 +375,6 @@ def CheckSize(data, target, info_dict):
     p = info_dict["fstab"][mount_point]
     fs_type = p.fs_type
     limit = info_dict.get(p.device + "_size", None)
-  else:
-    fs_type = info_dict.get("fs_type", None)
-    limit = info_dict.get(target + "_size", None)
   if not fs_type or not limit: return
 
   if fs_type == "yaffs2":
@@ -810,9 +801,4 @@ def GetTypeAndDevice(mount_point, info):
   if fstab:
     return PARTITION_TYPES[fstab[mount_point].fs_type], fstab[mount_point].device
   else:
-    devices = {"/boot": "boot",
-               "/recovery": "recovery",
-               "/radio": "radio",
-               "/data": "userdata",
-               "/cache": "cache"}
-    return info["partition_type"], info.get("partition_path", "") + devices[mount_point]
+    return None
