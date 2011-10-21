@@ -1361,11 +1361,6 @@ otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 bacon: otapackage
 
 ifeq ($(TARGET_CUSTOM_RELEASETOOL),)
-ifeq ($(TARGET_USES_LEOUPDATE), true)
-	# USE SPECIAL UPDATE PACKAGE FOR LEO
-	# should also use TARGET_CUSTOM_RELEASETOOL
-	./vendor/cyanogen/tools/leoupdate
-endif
 	$(hide) \
 	WANT_SQUASHFS=$(WANT_SQUASHFS) \
 	./vendor/cyanogen/tools/squisher
