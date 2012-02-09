@@ -758,6 +758,8 @@ $(TARGET_RECOVERY_ROOT_TIMESTAMP): $(INTERNAL_RECOVERY_FILES) \
 	cp $(RECOVERY_INSTALL_OTA_KEYS) $(TARGET_RECOVERY_ROOT_OUT)/res/keys
 	cat $(INSTALLED_DEFAULT_PROP_TARGET) $(recovery_build_prop) \
 	        > $(TARGET_RECOVERY_ROOT_OUT)/default.prop
+	echo Modifying default.prop
+	sed -i 's/ro.build.date.utc=.*/ro.build.date.utc=0/g' $(TARGET_RECOVERY_ROOT_OUT)/default.prop
 	@echo ----- Made recovery filesystem -------- $(TARGET_RECOVERY_ROOT_OUT)
 	@touch $(TARGET_RECOVERY_ROOT_TIMESTAMP)
 
@@ -1308,12 +1310,6 @@ ifeq ($(TARGET_RELEASETOOL_IMG_FROM_TARGET_SCRIPT),)
     IMG_FROM_TARGET_SCRIPT := ./build/tools/releasetools/img_from_target_files
 else
     IMG_FROM_TARGET_SCRIPT := $(TARGET_RELEASETOOL_IMG_FROM_TARGET_SCRIPT)
-endif
-
-ifneq ($(NAM_VARIANT),)
-    $(INTERNAL_OTA_PACKAGE_TARGET): modelidcfg := true
-else
-    $(INTERNAL_OTA_PACKAGE_TARGET): modelidcfg := false
 endif
 
 $(INTERNAL_UPDATE_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(OTATOOLS)
