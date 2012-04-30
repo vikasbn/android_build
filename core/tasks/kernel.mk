@@ -93,7 +93,13 @@ define clean-module-folder
 endef
 
 ifeq ($(TARGET_ARCH),arm)
-    ARM_CROSS_COMPILE:=CROSS_COMPILE=$(ARM_EABI_TOOLCHAIN)/arm-eabi-
+    ifneq ($(USE_CCACHE),)
+      ccache := $(ANDROID_BUILD_TOP)/prebuilt/$(HOST_PREBUILT_TAG)/ccache/ccache
+      # Check that the executable is here.
+      ccache := $(strip $(wildcard $(ccache)))
+    endif
+    ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(ARM_EABI_TOOLCHAIN)/arm-eabi-"
+    ccache = 
 endif
 
 ifeq ($(TARGET_KERNEL_MODULES),)
@@ -114,6 +120,8 @@ TARGET_KERNEL_BINARIES: $(KERNEL_OUT) $(KERNEL_CONFIG) $(KERNEL_HEADERS_INSTALL)
 	$(MAKE) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(TARGET_ARCH) $(ARM_CROSS_COMPILE) $(TARGET_PREBUILT_INT_KERNEL_TYPE)
 	$(MAKE) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(TARGET_ARCH) $(ARM_CROSS_COMPILE) modules
 	$(MAKE) -C $(KERNEL_SRC) O=$(KERNEL_OUT) INSTALL_MOD_PATH=../../$(KERNEL_MODULES_INSTALL) ARCH=$(TARGET_ARCH) $(ARM_CROSS_COMPILE) modules_install
+	$(mv-modules)
+	$(clean-module-folder)
 
 $(TARGET_KERNEL_MODULES): TARGET_KERNEL_BINARIES
 
